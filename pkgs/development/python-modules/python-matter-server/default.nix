@@ -3,6 +3,8 @@
 , fetchFromGitHub
 , fetchpatch
 , pythonOlder
+, stdenvNoCC
+, substituteAll
 
 # build
 , setuptools
@@ -27,6 +29,24 @@
 , pytestCheckHook
 }:
 
+let
+  paaCerts = stdenvNoCC.mkDerivation {
+    name = "matter-server-paa-certificates";
+
+    src = fetchFromGitHub {
+      owner = "project-chip";
+      repo = "connectedhomeip";
+      rev = "refs/tags/v1.2.0.1";
+      hash = "sha256-p3P0n5oKRasYz386K2bhN3QVfN6oFndFIUWLEUWB0ss=";
+    };
+
+    installPhase = ''
+      mkdir -p $out
+      cp $src/credentials/development/paa-root-certs/* $out/
+    '';
+  };
+in
+
 buildPythonPackage rec {
   pname = "python-matter-server";
   version = "3.7.0";
@@ -47,6 +67,10 @@ buildPythonPackage rec {
       name = "relax-setuptools-dependency.patch";
       url = "https://github.com/home-assistant-libs/python-matter-server/commit/1bbc945634db92ea081051645b03c3d9c358fb15.patch";
       hash = "sha256-kTu1+IwDrcdqelyK/vfhxw8MQBis5I1jag7YTytKQhs=";
+    })
+    (substituteAll {
+      src = ./link-paa-root-certs.patch;
+      paacerts = paaCerts;
     })
   ];
 
