@@ -40286,6 +40286,8 @@ with pkgs;
 
   zap = callPackage ../tools/networking/zap { };
 
+  zap-cli = callPackage ../development/tools/zap { };
+
   zigbee2mqtt = callPackage ../servers/zigbee2mqtt { };
 
   zopfli = callPackage ../tools/compression/zopfli { };
